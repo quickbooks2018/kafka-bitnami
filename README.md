@@ -773,9 +773,11 @@ extraEnvVars:
 
 - helm command
 ```bash
-helm -n kafka upgrade --install kafka-release bitnami/kafka --create-namespace --set kraft.clusterId=ZTAxYTAzYzcyMzQ1NDM5Yj --set persistence.size=8Gi,lo
-gPersistence.size=8Gi,volumePermissions.enabled=true,persistence.enabled=true,logPersistence.enabled=true,serviceAccount.create=true,rbac.create=true --version 26
-.9.0 -f kafka-values.yaml
+helm -n kafka upgrade --install kafka-release bitnami/kafka --create-namespace \
+--set kraft.clusterId=ZTAxYTAzYzcyMzQ1NDM5Yj \
+--set persistence.size=8Gi,logPersistence.size=8Gi,volumePermissions.enabled=true,\
+persistence.enabled=true,logPersistence.enabled=true,serviceAccount.create=true,rbac.create=true \
+--version 26.9.0 -f kafka-values.yaml
 ```
 
 - helm output for user-name & password
