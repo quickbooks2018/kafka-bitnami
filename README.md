@@ -739,3 +739,71 @@ git clone https://github.com/tchiotludo/akhq.git
 helm upgrade --install kafka-akhq --namespace kafka \
   -f akhq-values.yaml --create-namespace --wait ./akhq/helm/akhq
 ```
+
+### kafka kraft Mode
+
+- kraft-values.yaml
+```yaml
+# https://github.com/bitnami/charts/blob/main/bitnami/kafka/values.yaml
+---
+image:
+  debug: true
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Equal"
+    value: ""
+    effect: "NoSchedule"
+externalAccess:
+  enabled: false
+  autoDiscovery:
+    enabled: true
+kraft:
+  enabled: true
+  replicas: 3
+  zookeeper:
+    enabled: false
+extraEnvVars:
+  - name: KAFKA_ENABLE_KRAFT
+    value: "true"
+  - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
+    value: "true"  # Add this line to enable topic deletion
+  - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+    value: "true"  # Add this line to enable topic auto-creation
+```
+
+- helm command
+```bash
+helm -n kafka upgrade --install kafka-release bitnami/kafka --create-namespace --set kraft.clusterId=ZTAxYTAzYzcyMzQ1NDM5Yj --set persistence.size=8Gi,lo
+gPersistence.size=8Gi,volumePermissions.enabled=true,persistence.enabled=true,logPersistence.enabled=true,serviceAccount.create=true,rbac.create=true --version 26
+.9.0 -f kafka-values.yaml
+```
+
+- helm output for user-name & password
+```output
+security.protocol=SASL_PLAINTEXT
+sasl.mechanism=SCRAM-SHA-256
+sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
+    username="user1" \
+    password="$(kubectl get secret kafka-release-user-passwords --namespace kafka -o jsonpath='{.data.client-passwords}' | base64 -d | cut -d , -f 1)";
+
+To create a pod that you can use as a Kafka client run the following commands:
+
+    kubectl run kafka-release-client --restart='Never' --image docker.io/bitnami/kafka:3.6.1-debian-11-r6 --namespace kafka --command -- sleep infinity
+    kubectl cp --namespace kafka /path/to/client.properties kafka-release-client:/tmp/client.properties
+    kubectl exec --tty -i kafka-release-client --namespace kafka -- bash
+
+    PRODUCER:
+        kafka-console-producer.sh \
+            --producer.config /tmp/client.properties \
+            --broker-list kafka-release-controller-0.kafka-release-controller-headless.kafka.svc.cluster.local:9092,kafka-release-controller-1.kafka-release-contr
+oller-headless.kafka.svc.cluster.local:9092,kafka-release-controller-2.kafka-release-controller-headless.kafka.svc.cluster.local:9092 \
+            --topic test
+
+    CONSUMER:
+        kafka-console-consumer.sh \
+            --consumer.config /tmp/client.properties \
+            --bootstrap-server kafka-release.kafka.svc.cluster.local:9092 \
+            --topic test \
+            --from-beginning
+```
+
