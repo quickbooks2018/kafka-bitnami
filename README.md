@@ -838,6 +838,89 @@ configuration:
           sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule required username='user1' password='eXnt9QssgH';"
 ```
 
+- akhq-secure-values.yaml
+```yaml
+configuration:
+  micronaut:
+    security:
+      enabled: true
+      token:
+        jwt:
+          signatures:
+            secret:
+              generator:
+                secret: 'NewLongerSecretStringWithAtLeast32Characters'
+    server:
+      cors:
+        enabled: true
+        configurations:
+          all:
+            allowedOrigins:
+              - "*"
+  akhq:
+    connections:
+      local:
+        properties:
+          bootstrap.servers: "kafka-release-controller-headless.kafka.svc.cluster.local:9092"
+          security.protocol: "SASL_PLAINTEXT"
+          sasl.mechanism: "PLAIN"
+          sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule required username='user1' password='Q3G3sUkhVc';"
+
+    # https://stackoverflow.com/questions/76787677/kafka-ui-akhq-basic-user-authentication-doesnt-work
+    security:
+      default-group:
+        - no-roles # Default groups for all the user even unlogged user
+      # Groups definition
+      groups:
+        admin: # unique key
+          name: admin # Group name
+          roles: # roles for the group
+            - topic/read
+            - topic/insert
+            - topic/delete
+            - topic/config/update
+            - node/read
+            - node/config/update
+            - topic/data/read
+            - topic/data/insert
+            - topic/data/delete
+            - group/read
+            - group/delete
+            - group/offsets/update
+            - registry/read
+            - registry/insert
+            - registry/update
+            - registry/delete
+            - registry/version/delete
+            - acls/read
+            - connect/read
+            - connect/insert
+            - connect/update
+            - connect/delete
+            - connect/state/update
+        # Basic auth configuration
+        reader: # unique key
+          name: reader # Group name
+          roles: # roles for the group
+            - topic/read
+            - node/read
+            - topic/data/read
+            - group/read
+            - registry/read
+            - acls/read
+            - connect/read
+      # https://10015.io/tools/sha256-encrypt-decrypt
+      basic-auth:
+        - username: admin
+          password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"  # SHA-256 hashed password for 'admin' is NewSHA256HashForAdmin
+          groups:
+            - admin
+        - username: reader
+          password: "3d0941964aa3ebdcb00ccef58b1bb399f9f898465e9886d5aec7f31090a0fb30"  # SHA-256 hashed password for 'reader' is NewSHA256HashForReader
+          groups:
+            - reader
+```
+
 - helm command (Note: change the chart value 0.23.0)
 ```bash
 helm upgrade --install kafka-akhq --namespace kafka \
