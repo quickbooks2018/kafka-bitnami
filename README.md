@@ -927,3 +927,22 @@ helm upgrade --install kafka-akhq --namespace kafka \
   -f akhq-values.yaml --create-namespace --wait ./akhq/helm/akhq
 ```
 
+## Kafka and Kafka Raft Metadata mode
+```theory
+Apache Kafka is a distributed streaming platform that enables building real-time streaming data pipelines and applications. Traditionally, Kafka has relied on Apache ZooKeeper for managing its cluster metadata, such as tracking broker metadata, topic configurations, and partitions. However, managing Kafka clusters with ZooKeeper has introduced complexities and limitations, especially in terms of scalability and operational simplicity.
+
+KRaft mode, short for Kafka Raft Metadata mode, is a significant evolution in Apache Kafka's architecture, aiming to remove the dependency on ZooKeeper and manage Kafka cluster metadata internally. KRaft mode utilizes a consensus mechanism based on the Raft algorithm for distributed coordination, thereby simplifying the Kafka architecture by consolidating metadata management within Kafka itself.
+
+Key Features and Advantages of KRaft Mode:
+Simplified Operations: By eliminating the need for ZooKeeper, KRaft mode simplifies the Kafka architecture, reducing the operational complexity and overhead associated with managing separate ZooKeeper clusters.
+Improved Scalability: KRaft mode enhances Kafka's scalability by streamlining metadata management, potentially leading to better performance in large-scale environments.
+High Availability: The Raft consensus algorithm enhances the fault tolerance and availability of Kafka clusters by ensuring that the cluster can continue to operate even if some nodes fail.
+Simplified Configuration: With KRaft mode, configuring and managing Kafka clusters becomes more straightforward, as it reduces the number of moving parts and configurations needed to get Kafka up and running.
+Enhanced Security: Integrating metadata management into Kafka itself can potentially streamline security configurations, making it easier to secure Kafka clusters.
+Considerations for KRaft Mode:
+Migration: Transitioning from a ZooKeeper-based setup to KRaft mode involves careful planning and execution, as it may require significant changes to existing cluster configurations and tooling.
+Tooling and Ecosystem Support: As KRaft mode represents a fundamental change in Kafka's architecture, not all existing tools and integrations may immediately support KRaft mode, though this is rapidly evolving.
+Maturity: As with any significant architectural change, assessing the maturity and stability of KRaft mode for production environments is crucial, keeping in mind the specific version of Kafka being used and the community's feedback.
+KRaft mode marks a significant step forward in Kafka's evolution, aiming to make Kafka simpler to operate, more scalable, and more robust. Organizations looking to deploy Kafka at scale or seeking to simplify their Kafka operations may find KRaft mode particularly appealing as it matures and gains wider adoption.
+```
+
