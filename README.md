@@ -807,3 +807,38 @@ oller-headless.kafka.svc.cluster.local:9092,kafka-release-controller-2.kafka-rel
             --from-beginning
 ```
 
+- akhq-values.yaml
+```yaml
+configuration:
+  micronaut:
+    security:
+      enabled: true
+      token:
+        jwt:
+          signatures:
+            secret:
+              generator:
+                secret: 'NewLongerSecretStringWithAtLeast32Characters'
+    server:
+      cors:
+        enabled: true
+        configurations:
+          all:
+            allowedOrigins:
+              - "*"
+  akhq:
+    connections:
+      local:
+        properties:
+          bootstrap.servers: "kafka-release-controller-headless.kafka.svc.cluster.local:9092"
+          security.protocol: "SASL_PLAINTEXT"
+          sasl.mechanism: "PLAIN"
+          sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule required username='user1' password='eXnt9QssgH';"
+```
+
+- helm command (Note: change the chart value 0.23.0)
+```bash
+helm upgrade --install kafka-akhq --namespace kafka \
+  -f akhq-values.yaml --create-namespace --wait ./akhq/helm/akhq
+```
+
